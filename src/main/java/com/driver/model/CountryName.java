@@ -7,6 +7,7 @@ public enum CountryName {
     CHI("004"),
     JPN("005");
 
+
     private final String code;
 
     private CountryName(String s) {
@@ -16,4 +17,5 @@ public enum CountryName {
     public String toCode() {
         return this.code;
     }
+
 }
