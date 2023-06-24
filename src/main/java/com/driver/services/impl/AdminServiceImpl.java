@@ -77,8 +77,8 @@ public class AdminServiceImpl implements AdminService {
         }
         country.setCountryName(CountryName.valueOf(countryName));
         country.setCode(CountryName.valueOf(countryName).toCode());
-        countryRepository1.save(country);
        ServiceProvider serviceProvider=serviceProviderRepository1.findById(serviceProviderId).get();
+       country.setServiceProvider(serviceProvider);
        serviceProvider.getCountryList().add(country);
        serviceProviderRepository1.save(serviceProvider);
         return serviceProvider;
