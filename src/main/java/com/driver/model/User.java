@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class User{
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -14,20 +14,20 @@ public class User{
     private String password;
     private String originalIp;
     private String maskedIp;
-    Boolean connected;
+    private Boolean connected;
 
-    @OneToMany
-    List<ServiceProvider> serviceProviderList=new ArrayList<>();
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    List<Connection> connectionList=new ArrayList<>();
-
-    @OneToOne
+    @ManyToMany
     @JoinColumn
-    Country country;
+    private List<ServiceProvider> serviceProviderList;
 
-    public User(int id, String username, String password, String originalIp, String maskedIp,
-                Boolean connected, List<ServiceProvider> serviceProviderList, List<Connection> connectionList, Country country) {
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Connection> connectionList;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Country originalCountry;  //this field remains unsatisfied even when vpn connection is made
+
+    public User(int id, String username, String password, String originalIp, String maskedIp, Boolean connected, List<ServiceProvider> serviceProviderList,
+                List<Connection> connectionList, Country originalCountry) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -36,7 +36,7 @@ public class User{
         this.connected = connected;
         this.serviceProviderList = serviceProviderList;
         this.connectionList = connectionList;
-        this.country = country;
+        this.originalCountry = originalCountry;
     }
 
     public User() {
@@ -107,10 +107,10 @@ public class User{
     }
 
     public Country getOriginalCountry() {
-        return country;
+        return originalCountry;
     }
 
-    public void setOriginalCountry(Country country) {
-        this.country = country;
+    public void setOriginalCountry(Country originalCountry) {
+        this.originalCountry = originalCountry;
     }
 }

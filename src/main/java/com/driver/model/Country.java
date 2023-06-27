@@ -12,12 +12,13 @@ public class Country {
     private int id;
     private CountryName countryName;
     private String code;
-    @OneToOne(mappedBy = "country",cascade = CascadeType.ALL)
-    private User user;
+    @OneToOne
+    @JoinColumn
+    private User user;  //this field is null in case a virtual connection is made to this country
 
     @ManyToOne
     @JoinColumn
-    private ServiceProvider serviceProvider;
+    private ServiceProvider serviceProvider;  //this field is non-null only when a virtual conection is made
 
     public Country(int id, CountryName countryName, String code, User user, ServiceProvider serviceProvider) {
         this.id = id;
@@ -68,5 +69,36 @@ public class Country {
 
     public void setServiceProvider(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
+    }
+    public void enrich(String countryName)throws Exception{
+        String updateName=countryName.toUpperCase();
+        if(updateName.equals("IND")){
+            this.setCountryName(CountryName.IND);
+            this.setCode(CountryName.IND.toCode());
+
+        }
+        else if(updateName.equals("USA")){
+            this.setCountryName(CountryName.USA);
+            this.setCode(CountryName.USA.toCode());
+
+        }
+        else if(updateName.equals("AUS")){
+            this.setCountryName(CountryName.AUS);
+            this.setCode(CountryName.AUS.toCode());
+
+        }
+        else if(updateName.equals("CHI")){
+            this.setCountryName(CountryName.CHI);
+            this.setCode(CountryName.CHI.toCode());
+
+        }
+        else if(updateName.equals("JPN")){
+            this.setCountryName(CountryName.JPN);
+            this.setCode(CountryName.JPN.toCode());
+
+        }
+        else{
+            throw new Exception("Country not found");
+        }
     }
 }

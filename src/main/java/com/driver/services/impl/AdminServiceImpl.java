@@ -22,36 +22,37 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     ServiceProviderRepository serviceProviderRepository1;
 
-    @Autowired
-    CountryRepository countryRepository1;
-
-    @Autowired
-    UserRepository userRepository;
+//    @Autowired
+//    CountryRepository countryRepository1;
+//
+//    @Autowired
+//    UserRepository userRepository;
 
     @Override
     public Admin register(String username, String password) {
         Admin admin=new Admin();
-        List<ServiceProvider> serviceProviders=new ArrayList<>();
         admin.setUsername(username);
         admin.setPassword(password);
-        admin.setServiceProviders(serviceProviders);
+        admin.setServiceProviders(new ArrayList<>());
 
-        Admin savedAdmin=adminRepository1.save(admin);
-        return savedAdmin;
+        adminRepository1.save(admin);
+        return admin;
     }
 
     @Override
     public Admin addServiceProvider(int adminId, String providerName) {
 
         Admin admin=adminRepository1.findById(adminId).get();
+        List<ServiceProvider> serviceProviderList=admin.getServiceProviders();
+
         ServiceProvider serviceProvider=new ServiceProvider();
-        List<ServiceProvider> serviceProviders=new ArrayList<>();
         serviceProvider.setName(providerName);
+        serviceProvider.setCountryList(new ArrayList<>());
+        serviceProvider.setUsers(new ArrayList<>());
         serviceProvider.setAdmin(admin);
-        serviceProviders.add(serviceProvider);
-        admin.setServiceProviders(serviceProviders);
+        serviceProviderList.add(serviceProvider);
+        admin.setServiceProviders(serviceProviderList);
         adminRepository1.save(admin);
-        serviceProvider=serviceProviderRepository1.save(serviceProvider);
         return admin;
     }
 
@@ -64,23 +65,15 @@ public class AdminServiceImpl implements AdminService {
         // Note that the user attribute of the country in this case would be null.
         //In case country name is not amongst the above mentioned strings, throw "Country not found" exception
 
-        Optional<ServiceProvider> optionalServiceProvider=serviceProviderRepository1.findById(serviceProviderId);
-        if(!optionalServiceProvider.isPresent()){
-            throw new IdNotPresentException("Invalid ServiceProvider Id");
-        }
-
+        ServiceProvider serviceProvider=serviceProviderRepository1.findById(serviceProviderId).get();
+        List<Country> countryList=serviceProvider.getCountryList();
         Country country=new Country();
-        for (CountryName c:CountryName.values()){
-            if(!c.name().equals(countryName)){
-                throw new Exception("Country not found");
-            }
-        }
-        country.setCountryName(CountryName.valueOf(countryName));
-        country.setCode(CountryName.valueOf(countryName).toCode());
-       ServiceProvider serviceProvider=serviceProviderRepository1.findById(serviceProviderId).get();
-       country.setServiceProvider(serviceProvider);
-       serviceProvider.getCountryList().add(country);
-       serviceProviderRepository1.save(serviceProvider);
+        country.enrich(countryName);
+
+        country.setServiceProvider(serviceProvider);
+        countryList.add(country);
+        serviceProvider.setCountryList(countryList);
+        serviceProviderRepository1.save(serviceProvider);
         return serviceProvider;
     }
 }

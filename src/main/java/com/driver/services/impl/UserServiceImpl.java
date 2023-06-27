@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,18 +31,20 @@ public class UserServiceImpl implements UserService {
 
         //Note that the userId is created automatically by the repository layer
         User user=new User();
-        Country country=countryRepository3.findByName(countryName);
         user.setUsername(username);
         user.setPassword(password);
-        user.setOriginalIp(country.getCode()+"."+user.getId());
-        user.setMaskedIp(null);
         user.setConnected(false);
+        user.setConnectionList(new ArrayList<>());
         user.setServiceProviderList(new ArrayList<>());
-        user.setOriginalCountry(country);
-        //save
-        User savedUser=userRepository3.save(user);
+        Country country=new Country();
+        country.enrich(countryName);
 
-        return savedUser;
+        country.setUser(user);
+        user.setOriginalCountry(country);
+        user=userRepository3.save(user);
+        user.setOriginalIp(new String(user.getOriginalCountry().getCode()+"."+user.getId()));
+        user=userRepository3.save(user);
+        return user;
     }
 
     @Override
@@ -49,10 +52,13 @@ public class UserServiceImpl implements UserService {
         //subscribe to the serviceProvider by adding it to the list of providers and return updated User
         User user=userRepository3.findById(userId).get();
         ServiceProvider serviceProvider=serviceProviderRepository3.findById(serviceProviderId).get();
-        user.getServiceProviderList().add(serviceProvider);
-        serviceProvider.getUsers().add(user);
-        //save
-        ServiceProvider updatedServiceProvider=serviceProviderRepository3.save(serviceProvider);
-     return user;
+        List<ServiceProvider> serviceProviderList=user.getServiceProviderList();
+        List<User> userList=serviceProvider.getUsers();
+        serviceProviderList.add(serviceProvider);
+        user.setServiceProviderList(serviceProviderList);
+        userList.add(user);
+        serviceProvider.setUsers(userList);
+        serviceProviderRepository3.save(serviceProvider);
+        return user;
     }
 }

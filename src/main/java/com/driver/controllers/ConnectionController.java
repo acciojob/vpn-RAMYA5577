@@ -1,6 +1,7 @@
 package com.driver.controllers;
 
 import com.driver.model.User;
+import com.driver.services.ConnectionService;
 import com.driver.services.impl.ConnectionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/connection")
 public class ConnectionController {
     @Autowired
-    ConnectionServiceImpl connectionService;
+    ConnectionService connectionService;
 
     @PostMapping("/connect")
     public ResponseEntity<Void> connect(@RequestParam int userId, @RequestParam String countryName) throws Exception{
